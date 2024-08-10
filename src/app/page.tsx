@@ -48,16 +48,16 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center gap-4 p-24">
       <h1 className="text-4xl">Customers</h1>
       <div
-        className="grid w-full max-h-[800px] "
+        className="grid w-full max-h-[800px] border-t-2 border-t-zinc-200 "
         style={{ gridTemplateColumns: "2fr 6fr" }}
       >
-        <div className="list max-h-[1000px] overflow-y-scroll scrollbar-custom -mr-[10px] hover:mr-0">
+        <div className="list max-h-[1000px] overflow-y-scroll scrollbar-custom -mr-[11px] hover:mr-0">
           {newCustomerList.map((item) => (
             <div
               className={
                 customer?.id == item.id
                   ? "bg-slate-200 p-6 border-b-2 border-b-zinc-200 border-black border-r-2"
-                  : "bg-slate-50 p-6 border-b-2 border-zinc-200 cursor-pointer "
+                  : "bg-slate-50 p-6 border-b-2 border-zinc-200  border-r-2 cursor-pointer "
               }
               onClick={() => setCustomer(item)}
               key={item.id}
