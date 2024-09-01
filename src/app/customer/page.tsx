@@ -13,7 +13,7 @@ interface Photo {
   width: number;
 }
 
-export default function Home() {
+export default function CustomerPage() {
   const [customer, setCustomer] = useState<Customer | null>(newCustomerList[0]);
   const [imageList, setImageList] = useState<Photo[]>([]);
 

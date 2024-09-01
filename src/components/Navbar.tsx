@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { Button } from "./ui/button";
 import SearchBar from "./SearchBar";
-import { Bell, Download, Plus } from "lucide-react";
+import { Bell, Download, Plus, Wallet } from "lucide-react";
+import DownArrow from "@public/svg/downwardArrow";
 
 const Navbar = async () => {
   return (
@@ -19,7 +20,8 @@ const Navbar = async () => {
           <Button variant={"outline2"} className="flex items-center h-8 ">
             App Credits: <span className="pl-1 text-red-700"> ₹0</span>
           </Button>
-          <Button variant={"default2"} className="h-8 ">
+          <Button variant={"default2"} className="h-8 text-white flex gap-1">
+            <Wallet size={15} />
             Recharge
           </Button>
           <SearchBar />
@@ -34,12 +36,15 @@ const Navbar = async () => {
           </div>
         </div>
 
-        <div className="flex items-end gap-2 font-serif ">
+        <div className="flex items-center gap-2 font-serif ">
           <div className="text-darkblue font-bold text-sm">Switch Back</div>
           <div className="text-gray-400 text-[12px]">
             Signed in as Abhay@gmail.com
           </div>
-          <div className="text-gray-700 text-sm ">Abhay Nayak</div>
+          <div className="text-gray-700 text-sm flex gap-1 items-center ">
+            Abhay Nayak
+            <DownArrow width={8} height={5} />
+          </div>
         </div>
       </div>
     </div>
