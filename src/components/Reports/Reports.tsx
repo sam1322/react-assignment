@@ -1,11 +1,8 @@
-import DownArrow from "@public/svg/downwardArrow";
-import { InfoIcon, ShoppingCartIcon } from "lucide-react";
 import { FC } from "react";
 import OrderCards from "./OrderCards";
-import OverviewCards from "./Overview/OverviewCards";
-import OverviewCardsTwo from "./Overview/OverviewCards2";
 import OverviewContainer from "./Overview/OverviewContainer";
 import OrdersAndRevenue from "./OrdersAndRevenue/OrdersAndRevenue";
+import PieCharts from "./PieCharts";
 
 interface ReportsProps {}
 
@@ -52,6 +49,7 @@ const Reports: FC<ReportsProps> = ({}) => {
       <hr className="mt-4 mb-8" />
       <OverviewContainer />
       <OrdersAndRevenue />
+      <PieCharts />
     </div>
   );
 };

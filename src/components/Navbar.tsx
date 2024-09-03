@@ -6,7 +6,7 @@ import DownArrow from "@public/svg/downwardArrow";
 
 const Navbar = async () => {
   return (
-    <div className="fixed top-0 inset-x-0 h-fit bg-zinc-100 border-b border-zinc-300 z-[10] py-4 px-4">
+    <div className="fixed top-0 inset-x-0 h-fit bg-white shadow-md border-b border-zinc-300 z-[10] py-4 px-4">
       {/* this one is for width full  */}
       <div className=" h-full mx-auto flex items-center justify-between  gap-2 ">
         {/* this one is for max width 1240px */}
@@ -36,7 +36,7 @@ const Navbar = async () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 font-serif ">
+        <div className="flex items-center gap-2 ">
           <div className="text-darkblue font-bold text-sm">Switch Back</div>
           <div className="text-gray-400 text-[12px]">
             Signed in as Abhay@gmail.com
