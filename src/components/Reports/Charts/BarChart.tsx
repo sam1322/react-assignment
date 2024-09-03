@@ -235,9 +235,9 @@ const BarChart: FC<BarChartProps> = ({}) => {
         // .padding(1);
         .padding(getPadding()); // Adjust padding for scale
 
-      console.log("padding", 0.2, padding / (width / data.length));
+      // console.log("padding", 0.2, padding / (width / data.length));
 
-      console.log("data", data);
+      // console.log("data", data);
 
       chartGroup
         .append("g")
@@ -265,19 +265,23 @@ const BarChart: FC<BarChartProps> = ({}) => {
         .nice()
         .range([height, 0]);
 
-      chartGroup.append("g")
-   
-      .call(
-        d3.axisLeft(yScaleLeft).tickFormat((y) => {
-          if (y == 0) return 0;
-          return y * 0.001 + " K";
-          // return (y + 5500).toFixed();
-        })
-      )
-      .call(g => g.selectAll(".tick line").clone()
-      .attr("x2", width)
-      .attr("stroke-opacity", 0.1))
-      ;
+      chartGroup
+        .append("g")
+
+        .call(
+          d3.axisLeft(yScaleLeft).tickFormat((y) => {
+            if (y == 0) return 0;
+            return y * 0.001 + " K";
+            // return (y + 5500).toFixed();
+          })
+        )
+        .call((g) =>
+          g
+            .selectAll(".tick line")
+            .clone()
+            .attr("x2", width)
+            .attr("stroke-opacity", 0.1)
+        );
 
       const yScaleRight = d3
         .scaleLinear()
@@ -421,7 +425,7 @@ const BarChart: FC<BarChartProps> = ({}) => {
               style={{ background: "#F8A55B" }}
             ></div>
           </div>
-          <div>Orders</div>
+          <div>Revenue</div>
         </div>
       </div>
     </>
