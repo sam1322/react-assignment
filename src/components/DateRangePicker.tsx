@@ -38,7 +38,7 @@ const DatePickerWithRange: FC<DatePickerWithRangeProps> = ({
             id="date"
             variant={"outline"}
             className={cn(
-              "w-[300px] justify-start text-left font-normal",
+              "w-[250px] justify-start text-left font-normal",
               !date && "text-muted-foreground"
             )}
           >
@@ -48,7 +48,7 @@ const DatePickerWithRange: FC<DatePickerWithRangeProps> = ({
                 <>
                   {/* {format(date.from, "LLL dd, y")} -{" "} */}
                   {/* {format(date.to, "LLL dd, y")} */}
-                  {format(date.from, "MM-dd-y")} - {format(date.to, "MM-dd-y")}
+                  {format(date.from, "MM/dd/y")} - {format(date.to, "MM/dd/y")}
                 </>
               ) : (
                 format(date.from, "LLL dd, y")

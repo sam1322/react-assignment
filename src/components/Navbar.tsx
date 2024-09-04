@@ -32,18 +32,27 @@ const Navbar = async () => {
             Recharge
           </Button>
           <SearchBar />
-          <div className="bg-slate-300 p-2 rounded-md">
-            <Plus size={15} stroke="rgb(107 114 128  / 1)" />
+          <div
+            className="bg-slate-300 p-2 rounded-md"
+            style={{ background: "#F2F2F2" }}
+          >
+            <Plus size={15} stroke="#7B7B7B" />
           </div>
-          <div className="bg-slate-300 p-2 rounded-md">
-            <Download size={15} stroke="rgb(107 114 128  / 1)" />
+          <div
+            className="bg-slate-300 p-2 rounded-md"
+            style={{ background: "#F2F2F2" }}
+          >
+            <Download size={15} stroke="#7B7B7B" />
           </div>
-          <div className="bg-slate-300 p-2 rounded-md">
-            <Bell size={15} stroke="rgb(107 114 128  / 1)" />
+          <div
+            className="bg-slate-300 p-2 rounded-md"
+            style={{ background: "#F2F2F2" }}
+          >
+            <Bell size={15} stroke="#7B7B7B" />
           </div>
         </div>
 
-        <div className=" hidden items-center gap-2 2xl:flex ">
+        <div className=" hidden items-center gap-4 2xl:flex ">
           <div className="text-darkblue font-bold text-sm">Switch Back</div>
           <div className="text-gray-400 text-[12px]">
             Signed in as Abhay@gmail.com

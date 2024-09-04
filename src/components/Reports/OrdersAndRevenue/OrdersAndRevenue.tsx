@@ -46,7 +46,7 @@ const OrdersAndRevenue: FC<OrdersAndRevenueProps> = ({ date }) => {
             Orders & Revenue
             {date?.from ? (
               <span className="ml-2">
-                ( <ShowDateRange date={date} />)
+                ( <ShowDateRange date={date} /> )
               </span>
             ) : null}
             {/* (15-04-2024 to 15-05-2024) */}

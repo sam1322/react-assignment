@@ -23,7 +23,7 @@ const HeaderBox: FC<HeaderBoxProps> = ({
             {label}{" "}
             {date?.from ? (
               <span className="ml-2">
-                ( <ShowDateRange date={date} />)
+                ( <ShowDateRange date={date} /> ) 
               </span>
             ) : null}{" "}
           </div>{" "}
