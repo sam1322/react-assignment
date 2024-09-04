@@ -59,12 +59,18 @@ const Card: FC<CardProps> = ({ icon, selected, newCard, onClick }) => {
   return (
     <div
       className={cn(
-        "cursor-pointer p-6 px-4 flex flex-col justify-center items-center text-white rounded-lg",
+        "cursor-pointer p-6 px-4 flex flex-col justify-center items-center text-white rounded-lg relative",
         selected ? "text-darkblue bg-white cursor-default" : ""
       )}
       onClick={onClick}
     >
       <Icon /> {icon}
+      {newCard && (
+        <div className="rounded-md bg-green-400 text-sm p-2 py-1 absolute top-0 right-0">
+          {" "}
+          New
+        </div>
+      )}
     </div>
   );
 };

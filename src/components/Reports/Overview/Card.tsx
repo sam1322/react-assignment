@@ -17,7 +17,7 @@ const Card: FC<CardProps> = ({ col, val1, val2, last }) => {
         last ? "" : "border-r-2"
       )}
     >
-      <div className="flex items-center gap-2 text-sm">
+      <div className="flex items-center gap-2 text-sm truncate">
         {col} <InfoIcon size={15} fill="#3e719d" stroke="#fff" />
       </div>
       <div className="text-md font-bold text-darkblue">{val1}</div>

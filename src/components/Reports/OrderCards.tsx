@@ -21,7 +21,8 @@ const OrderCards: FC<OrderCardsProps> = ({
   const arrowWidth = 10;
   const arrowHeight = 5;
   return (
-    <div className="w-full">
+    <div className="min-w-[300px]">
+      {/* <div className="w-full"> */}
       <div className="flex items-center gap-1 mb-2 text-sm font-medium">
         {label} <InfoIcon size={15} fill="#3e719d" stroke="#fff" />
       </div>

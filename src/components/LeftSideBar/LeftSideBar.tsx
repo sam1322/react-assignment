@@ -22,6 +22,7 @@ const LeftSideBar: FC<LeftSideBarProps> = ({}) => {
           icon={icon}
           key={icon}
           selected={selected == icon}
+          newCard={icon == "App Store"}
           onClick={() => handleSelect(icon)}
         />
       ))}

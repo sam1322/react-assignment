@@ -6,7 +6,7 @@ interface OverviewContainerProps {}
 
 const OverviewContainer: FC<OverviewContainerProps> = ({}) => {
   return (
-    <div className="flex gap-6 mb-6">
+    <div className="flex flex-wrap gap-6 mb-6 2xl:flex-nowrap">
       <OverviewCards label="Shipping" />
       <OverviewCardsTwo label="NDR" />
     </div>

@@ -1,18 +1,35 @@
-import { FC } from "react";
+"use client";
+import { FC, useState } from "react";
 import OrderCards from "./OrderCards";
 import OverviewContainer from "./Overview/OverviewContainer";
 import OrdersAndRevenue from "./OrdersAndRevenue/OrdersAndRevenue";
 import PieCharts from "./PieCharts";
+import { DateRange } from "react-day-picker";
+import { addDays } from "date-fns";
+import { DatePickerWithRange } from "../DateRangePicker";
 
 interface ReportsProps {}
 
 const Reports: FC<ReportsProps> = ({}) => {
+  // const [date, setDate] = useState<DateRange | undefined>({
+  //   from: new Date(2022, 0, 20),
+  //   to: addDays(new Date(2022, 0, 20), 20),
+  // });
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+
+  const [date, setDate] = useState<DateRange | undefined>({
+    from: yesterday,
+    to: today,
+  });
+  console.log("date", date);
   return (
     <div className="pt-6 pr-12">
       <div className="text-4xl">
         Welcome, <strong>Abhay</strong>
       </div>
-      <div className="flex gap-8 my-4 mb-10">
+      <div className="flex gap-8 my-4 mb-10 flex-wrap">
         <OrderCards
           label="Orders"
           todayValue={"1,736"}
@@ -45,11 +62,14 @@ const Reports: FC<ReportsProps> = ({}) => {
           yesterdayValue="520"
         />
       </div>
-      <div className="text-xl font-semibold">Overview</div>
+      <div className="flex items-center justify-between">
+        <div className="text-xl font-semibold">Overview</div>
+        <DatePickerWithRange date={date} setDate={setDate} />
+      </div>
       <hr className="mt-4 mb-8" />
       <OverviewContainer />
-      <OrdersAndRevenue />
-      <PieCharts />
+      <OrdersAndRevenue date={date} />
+      <PieCharts date={date} />
     </div>
   );
 };
