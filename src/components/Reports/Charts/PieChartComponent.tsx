@@ -6,7 +6,8 @@ interface PieChartComponentProps {}
 
 const PieChartComponent: FC<PieChartComponentProps> = ({}) => {
   const ref = useRef();
-  const maxWidth = 900;
+  // const maxWidth = 900;
+  const maxWidth = 400;
   const maxHeight = 400;
   const margin = { top: 30, right: 30, bottom: 70, left: 60 };
 
@@ -55,38 +56,23 @@ const PieChartComponent: FC<PieChartComponentProps> = ({}) => {
   const runChart = () => {
     const svg = d3.select(ref.current);
     svg.selectAll("*").remove();
-
-    const width =
-      svg.node().parentNode.clientWidth - margin.left - margin.right - 90;
+    // const width =
+    // svg.node().parentNode.clientWidth - margin.left - margin.right - 90;
+    const width = maxWidth - margin.left - margin.right;
     const height = maxHeight - margin.top - margin.bottom;
-    // const width = maxWidth - margin.left - margin.right;
-    const radius = Math.min(width, height) / 2 - padding;
-    // const svg = d3
-    // .select(ref.current)
-    // .attr("width", width)
-    // .attr("height", height)
+    // const radius = Math.min(width, height) / 2;
+    const radius = 100;
+    // console.log("radius", radius, width, height);
     svg
-      .attr("viewBox", [-width / 2, -height / 2, width, height])
-      .attr("style", "max-width: 100%; height: auto; font: 10px sans-serif;");
-
-    // svg
-    //   .attr(
-    //     "viewBox",
-    //     `0 0 ${width + margin.left + margin.right} ${
-    //       height + margin.top + margin.bottom
-    //     }`
-    //   )
-    //   .attr("preserveAspectRatio", "xMidYMid meet");
+      .attr("width", "100%") // Responsive width
+      .attr("height", height)
+      .attr("viewBox", `0 0 ${width} ${height}`) // Maintain aspect ratio
+      .attr("preserveAspectRatio", "xMidYMid meet"); // Center alignment
 
     // Create the color scale.
     const color = d3
       .scaleOrdinal()
       .domain(data.map((d) => d.name))
-      // .range(
-      //   d3
-      //     .quantize((t) => d3.interpolateSpectral(t * 0.8 + 0.1), data.length)
-      //     .reverse()
-      // );
       .range(data.map((d) => d.color));
 
     const pie = d3
@@ -104,13 +90,17 @@ const PieChartComponent: FC<PieChartComponentProps> = ({}) => {
 
     const arcs = pie(data);
 
+    const centerX = width * 0.5;
+    const centerY = height * 0.5;
+
+    const pieGroup = svg
+      .append("g")
+      .attr("transform", `translate(${centerX}, ${centerY})`);
     // Create the SVG container.
     const angleArr: number[] = [];
 
     // Add a sector path for each value.
-    svg
-      .append("g")
-      .attr("stroke", "white")
+    pieGroup
       .selectAll()
       .data(arcs)
       .join("path")
@@ -121,13 +111,12 @@ const PieChartComponent: FC<PieChartComponentProps> = ({}) => {
 
     // Create a new arc generator to place a label close to the edge.
     // The label shows the value if there is enough room.
-    svg
-      .append("g")
-      .attr("text-anchor", "middle")
+    pieGroup
+      // .attr("text-anchor", "middle")
       .selectAll()
       .data(arcs)
       .join("text")
-
+      .attr("font-size", "10px")
       .attr("transform", (d) => {
         let [x, y] = arcLabel.centroid(d);
         let radAngle = (d.startAngle + d.endAngle) / 2;
@@ -149,29 +138,42 @@ const PieChartComponent: FC<PieChartComponentProps> = ({}) => {
           angle += f * thresholdAngle;
           angle %= 360;
         }
-        // Recalculate position after adjusting angle
+
         const newRadAngle = getRadAngle(angle - 90);
+
         x = labelRadius * Math.cos(newRadAngle);
         y = labelRadius * Math.sin(newRadAngle);
 
-        // Adjust label offset based on angle
-        let offset = 0;
-        if (angle > 300 || angle < 40) {
-          offset = 30;
+        let xoffset = 0,
+          yoffset = 0;
+        if (angle > 350 || angle < 20) {
+          yoffset = 30;
+          xoffset = -50;
+        } else if (angle > 300 || angle < 40) {
+          yoffset = 40;
+          xoffset = -50;
+        }
+        if (angle >= 20 && angle < 40) {
+          yoffset = 30;
+          xoffset = -20;
+        } else if (angle >= 40 && angle <= 180) {
+          xoffset = -40;
         } else if (angle > 220 && angle < 300) {
-          offset = 10;
-        } else if (angle > 180 && angle < 220) offset = -10;
-        else offset = -10;
+          xoffset = -30;
+        }
+        // else if (angle > 180 && angle < 220) {
+        //   // xoffset = -10;
+        // }
 
-        angleArr.push(angle); // Store this angle in the list
-        return `translate(${x + offset}, ${y + offset})`;
+        angleArr.push(angle);
+        return `translate(${x + xoffset}, ${y + yoffset})`;
       })
       // .attr("transform", (d) => `translate(${arcLabel.centroid(d)})`)
       .call((text) =>
         text
           .append("tspan")
           .attr("y", "-0.4em")
-          .attr("font-weight", "bold")
+          // .attr("font-weight", "bold")
           .text((d) => d.data.name)
       )
       .call((text) =>
@@ -180,8 +182,6 @@ const PieChartComponent: FC<PieChartComponentProps> = ({}) => {
           .append("tspan")
           .attr("x", 0)
           .attr("y", "0.7em")
-          .attr("fill-opacity", 0.7)
-          // .text((d) => d.data.value.toLocaleString("en-US"))
           .text(
             (d) =>
               d.data.value.toLocaleString("en-US") +
@@ -190,7 +190,6 @@ const PieChartComponent: FC<PieChartComponentProps> = ({}) => {
               "%)"
           )
       );
-    console.log("angleArr", angleArr);
   };
 
   useEffect(() => {
@@ -198,7 +197,7 @@ const PieChartComponent: FC<PieChartComponentProps> = ({}) => {
   }, []);
 
   return (
-    <>
+    <div className="flex flex-col items-center justify-center w-full relative ">
       <svg
         // @ts-ignore
         ref={ref}
@@ -261,7 +260,7 @@ const PieChartComponent: FC<PieChartComponentProps> = ({}) => {
           </div>
         ))}
       </div> */}
-    </>
+    </div>
   );
 };
 

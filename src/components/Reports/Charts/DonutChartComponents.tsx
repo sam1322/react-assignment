@@ -8,14 +8,38 @@ interface DonutChartComponentsProps {}
 const DonutChartComponents: FC<DonutChartComponentsProps> = ({}) => {
   const ref = useRef();
   // const maxWidth = 900;
-  const maxHeight = 300;
+  // const maxHeight = 400;
+  const maxWidth = 400;
+  const maxHeight = 400;
   const margin = { top: 30, right: 30, bottom: 70, left: 60 };
+  const thresholdAngle = 20;
 
-  const padding = 50;
+  const padding = 30;
 
   const getAngle = (rad: number) => rad * (180 / Math.PI);
   const getRadAngle = (angle: number) => angle * (Math.PI / 180);
+  const checkAngle = (angle: number, angleArr: number[]) => {
+    let minDiff = Infinity;
+    let count = 0;
 
+    angleArr.forEach((usedAngle: number) => {
+      // Calculate the direct difference
+      let diff = Math.abs(angle - usedAngle);
+      // Calculate the difference wrapping around the circle
+      let wrapDiff = 360 - diff;
+      // Take the smaller of the two differences
+      let actualDiff = Math.min(diff, wrapDiff);
+
+      if (actualDiff < minDiff) {
+        minDiff = actualDiff;
+      }
+      if (actualDiff < thresholdAngle) {
+        count++;
+      }
+    });
+
+    return count;
+  };
   const data = [
     { name: "1 - 2 Days", value: 18589, label: 2, color: "#44C1D5" },
     { name: "3 - 4 Days", value: 18248, label: 3, color: "#82A7C2" },
@@ -28,38 +52,20 @@ const DonutChartComponents: FC<DonutChartComponentsProps> = ({}) => {
   const runChart = () => {
     const svg = d3.select(ref.current);
     svg.selectAll("*").remove();
-    const width =
-      svg.node().parentNode.clientWidth - margin.left - margin.right - 90;
-    // const width = maxWidth - margin.left - margin.right;
+    // const width =
+    // svg.node().parentNode.clientWidth - margin.left - margin.right - 90;
+    const width = maxWidth - margin.left - margin.right;
     const height = maxHeight - margin.top - margin.bottom;
     // const radius = Math.min(width, height) / 2;
-    const radius = Math.max(200, Math.min(300, Math.min(width, height))) / 2;
+    const radius = 100;
+    // console.log("radius", radius, width, height);
+
     const thresholdAngle = 20;
-
-    // const svg = d3
-    // .select(ref.current)
-    // .attr("width", width)
-    // .attr("height", height)
     svg
-      // .attr("viewBox", [-width / 2, -height / 2, width, height])
-      .attr("viewBox", [
-        -width / 2 - padding,
-        -height / 2 - padding,
-        width + 2 * padding,
-        height + 2 * padding,
-      ])
-      .attr("style", "max-width: 100%; height: auto; font: 10px sans-serif;");
-
-    // svg
-    //   .attr(
-    //     "viewBox",
-    //     `0 0 ${width + margin.left + margin.right} ${
-    //       height + margin.top + margin.bottom
-    //     }`
-    //   )
-    //   .attr("preserveAspectRatio", "xMidYMid meet");
-
-    // Create the color scale.
+      .attr("width", "100%") // Responsive width
+      .attr("height", height)
+      .attr("viewBox", `0 0 ${width} ${height}`) // Maintain aspect ratio
+      .attr("preserveAspectRatio", "xMidYMid meet"); // Center alignment
 
     const arc = d3
       .arc()
@@ -69,18 +75,6 @@ const DonutChartComponents: FC<DonutChartComponentsProps> = ({}) => {
     const color = d3
       .scaleOrdinal()
       .domain(data.map((d) => d.name))
-      // .range(
-      //   d3
-      //     .quantize((t) => d3.interpolateSpectral(t * 0.8 + 0.1), data.length)
-      //     .reverse()
-      // );
-      // .range([
-      //   "#44C1D5", // Color for the first data point
-      //   "#82A7C2", // Color for the second data point
-      //   "#F0627B", // Color for the third data point
-      //   "#F8A55B", // Color for the fourth data point
-      // ]);
-
       .range(data.map((d) => d.color));
 
     const pie = d3
@@ -96,8 +90,18 @@ const DonutChartComponents: FC<DonutChartComponentsProps> = ({}) => {
 
     const arcs = pie(data);
 
+    // const centerX = width * 0.55;
+    // const centerY = height * 0.75;
+
+    const centerX = width * 0.5;
+    const centerY = height * 0.5;
+
+    const pieGroup = svg
+      .append("g")
+      .attr("transform", `translate(${centerX}, ${centerY})`);
     // Add a sector path for each value.
-    svg
+    // svg
+    pieGroup
       .append("g")
       .attr("stroke", "white")
       .selectAll()
@@ -126,9 +130,10 @@ const DonutChartComponents: FC<DonutChartComponentsProps> = ({}) => {
 
     const angleArr: number[] = [];
 
-    svg
-      .append("g")
-      .attr("text-anchor", "middle")
+    // svg
+    pieGroup
+      // .append("g")
+      // .attr("text-anchor", "middle")
       .selectAll()
       .data(arcs)
       .join("text")
@@ -138,12 +143,27 @@ const DonutChartComponents: FC<DonutChartComponentsProps> = ({}) => {
         let radAngle = (d.startAngle + d.endAngle) / 2;
         let angle = getAngle(radAngle);
 
-        for (let i = 0; i < angleArr.length; i++) {
-          if (Math.abs(angle - angleArr[i]) < thresholdAngle) {
-            angle += 20;
-            x = labelRadius * Math.cos(radAngle);
-            y = labelRadius * Math.sin(radAngle);
-          }
+        // for (let i = 0; i < angleArr.length; i++) {
+        //   if (Math.abs(angle - angleArr[i]) < thresholdAngle) {
+        //     angle += 20;
+        //   }
+        // }
+
+        // Avoid overlap by checking proximity to other labels using the enhanced checkAngle function
+        let f = checkAngle(angle, angleArr);
+        if (f > 0) {
+          angle += f * thresholdAngle; // Adjust the angle to avoid overlap
+          angle %= 360; // Ensure angle is within 0-360 degrees
+        }
+        f = checkAngle(angle, angleArr);
+        if (f > 0) {
+          angle += f * thresholdAngle;
+          angle %= 360;
+        }
+        f = checkAngle(angle, angleArr);
+        if (f > 0) {
+          angle += f * thresholdAngle;
+          angle %= 360;
         }
 
         const newRadAngle = getRadAngle(angle - 90);
@@ -151,59 +171,31 @@ const DonutChartComponents: FC<DonutChartComponentsProps> = ({}) => {
         x = labelRadius * Math.cos(newRadAngle);
         y = labelRadius * Math.sin(newRadAngle);
 
-        let offset = 0;
-        if (angle > 300 || angle < 60) {
-          offset = 30;
-        } else {
-          offset = 10;
+        let xoffset = 0,
+          yoffset = 0;
+        if (angle > 350 || angle < 20) {
+          yoffset = 30;
+          xoffset = -50;
+        } else if (angle > 300 || angle < 40) {
+          yoffset = 40;
+          xoffset = -50;
+        } else if (angle >= 40 && angle <= 180) {
+          xoffset = -40;
+        } else if (angle > 220 && angle < 300) {
+          xoffset = -30;
         }
+        // else if (angle > 180 && angle < 220) {
+        //   // xoffset = -10;
+        // }
 
         angleArr.push(angle);
         // const offset = d.startAngle > Math.PI ? -15 : 15; // Adjust offset based on position
-        return `translate(${x + offset}, ${y + offset})`;
+        return `translate(${x + xoffset}, ${y + yoffset})`;
       })
-      // .attr("transform", (d) => {
-      //   // Calculate the centroid of each arc and move the label outward
-      //   const [x, y] = arcLabel.centroid(d);
-      //   const offset = -50; // Adjust this value to move the labels farther out
-      //   const radAngle = (d.startAngle + d.endAngle) / 2; // Calculate the angle of the arc
-
-      //   const angle = getAngle(radAngle);
-
-      //   let xNew = x;
-      //   let yNew = y;
-
-      //   // for (let i = 0; i < angleArr.length; i++) {
-      //   //   if (Math.abs(angle - angleArr[i]) < thresholdAngle) {
-      //   //     angle += 10;
-      //   //   }
-      //   // }
-
-      //   const xOffset = Math.cos(radAngle) * offset;
-      //   const yOffset = Math.sin(radAngle) * offset;
-      //   console.log("xOffset", xOffset, x + xOffset);
-      //   console.log("yOffset", yOffset, y + yOffset);
-      //   console.log(
-      //     "angle",
-      //     radAngle.toFixed(2),
-      //     angle.toFixed(2),
-      //     d.data.name
-      //   );
-      //   // console.log(
-      //   //   "start angle",
-      //   //   d.startAngle.toFixed(2),
-      //   //   getAngle(d.startAngle).toFixed(2)
-      //   // );
-      //   // return `translate(${x + xOffset + 50}, ${y + yOffset})`;
-
-      //   return `translate(${xNew}, ${yNew})`;
-      // })
       .call((text) =>
         text
           .append("tspan")
           .attr("y", "-0.4em")
-          // .attr("font-weight", "bold")
-          // .attr("font-size", "12px")
           .text((d) => d.data.name)
       )
       .call((text) =>
@@ -222,28 +214,6 @@ const DonutChartComponents: FC<DonutChartComponentsProps> = ({}) => {
               "%)"
           )
       );
-
-    let totalDays = data.reduce((acc, cur) => acc + cur.value, 0);
-
-    let averageValue =
-      data.reduce((acc, cur) => acc + cur.value * cur.label, 0) / totalDays;
-
-    svg
-      .append("text")
-      .attr("text-anchor", "middle")
-      .attr("dominant-baseline", "middle") // Center vertically
-      .attr("font-size", "24px")
-      .attr("font-weight", "bold")
-      .attr("fill", "#004B84")
-      .text(averageValue.toFixed(1)) // Display average with 2 decimal places
-      .call((text) =>
-        text
-          .append("tspan")
-          .attr("x", 0)
-          .attr("y", "1.5em")
-          .attr("font-size", "12px")
-          .text("Average Value")
-      );
   };
 
   useEffect(() => {
@@ -251,7 +221,7 @@ const DonutChartComponents: FC<DonutChartComponentsProps> = ({}) => {
   }, []);
 
   return (
-    <div className="relative">
+    <div className="flex flex-col items-center justify-center w-full relative ">
       <svg
         // @ts-ignore
         ref={ref}
@@ -279,26 +249,6 @@ const DonutChartComponents: FC<DonutChartComponentsProps> = ({}) => {
           </div>
         </div>
       </div>
-      {/* <div className="w-full ">
-        <div className="w-full flex justify-center items-center text-sm gap-6 absolute bottom-10  ">
-          {data.map((item) => (
-            <div className="flex items-center gap-2">
-              <div
-                className="w-2 h-2 flex items-center justify-center"
-                style={{ background: item.color }}
-              ></div>
-              <div>{item.name}</div>
-            </div>
-          ))}
-        </div>
-        <div className="w-full flex items-center justify-center ">
-          <div className="bg-[#004B84] text-white text-sm flex items-center py-2 px-4 rounded-full">
-            <InfoIcon size={25} fill="#fff" stroke="#004B84" />
-            <span className="text-md font-semibold ml-2 mr-1">47.2%</span>
-            of your orders are delivered in 1-2 days
-          </div>
-        </div>
-      </div> */}
     </div>
   );
 };
