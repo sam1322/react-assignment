@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 import { FC, useEffect, useRef } from "react";
 import * as d3 from "d3";

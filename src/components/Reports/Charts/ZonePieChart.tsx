@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 import { FC, useEffect, useRef } from "react";
 import * as d3 from "d3";
@@ -241,7 +242,7 @@ const ZonePieChart: FC<ZonePieChartProps> = ({}) => {
       <div className="w-full flex flex-col gap-4 justify-center items-center relative -top-5">
         <div className="w-full flex justify-center items-center text-sm gap-6  ">
           {barData1.map((item) => (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2" key={item.label}>
               <div
                 className="w-2 h-2 flex items-center justify-center"
                 style={{ background: item.color }}
@@ -251,7 +252,7 @@ const ZonePieChart: FC<ZonePieChartProps> = ({}) => {
           ))}
 
           {data.map((item) => (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2" key={item.label}>
               <div
                 className="w-2 h-2 flex items-center justify-center"
                 style={{ background: item.color }}

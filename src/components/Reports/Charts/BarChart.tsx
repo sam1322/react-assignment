@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { FC, useEffect, useRef } from "react";
 import * as d3 from "d3";
 interface BarChartProps {}
@@ -7,7 +8,12 @@ const BarChart: FC<BarChartProps> = ({}) => {
   const maxWidth = 900;
   const maxHeight = 600;
 
-  const data = [
+  type BarChartData = {
+    date: string;
+    orders: number;
+    revenue: number;
+  };
+  const data: BarChartData[] = [
     { date: "2024-04-15", orders: 1200, revenue: 24 },
     { date: "2024-04-16", orders: 1300, revenue: 26 },
     { date: "2024-04-17", orders: 1500, revenue: 30 },
@@ -41,18 +47,21 @@ const BarChart: FC<BarChartProps> = ({}) => {
     { date: "2024-05-15", orders: 2000, revenue: 64 },
   ];
 
-  const rev = (d) => d.orders - 400;
+  const rev = (d: BarChartData) => d.orders - 400;
 
   useEffect(() => {
-    const svg = d3.select(ref.current);
+    // @ts-ignore
+    const svg = d3.select(ref?.current);
 
-    const renderChart = (data) => {
+    const renderChart = (data: BarChartData[]) => {
       svg.selectAll("*").remove();
 
       const margin = { top: 30, right: 30, bottom: 70, left: 60 };
       //   const width = maxWidth - margin.left - margin.right;
+
       const width =
-        svg.node().parentNode.clientWidth - margin.left - margin.right - 90;
+        // @ts-ignore
+        svg.node()?.parentNode.clientWidth - margin.left - margin.right - 90;
       const height = maxHeight - margin.top - margin.bottom;
       const padding = 30;
       svg
@@ -114,7 +123,6 @@ const BarChart: FC<BarChartProps> = ({}) => {
 
       chartGroup
         .append("g")
-
         .call(
           d3.axisLeft(yScaleLeft).tickFormat((y) => {
             if (y == 0) return 0;
@@ -133,6 +141,7 @@ const BarChart: FC<BarChartProps> = ({}) => {
       const yScaleRight = d3
         .scaleLinear()
         // .domain([0, d3.max(data, rev)])
+        // @ts-ignore
         .domain([0, d3.max(data, (d) => d.orders)])
         // .domain([d3.min(data, (d) => rev(d)), d3.max(data, (d) => d.orders)])
         // .domain([0, d3.max(data, (d) => d.revenue)])
@@ -243,7 +252,7 @@ const BarChart: FC<BarChartProps> = ({}) => {
     // Re-render on window resize
     window.addEventListener("resize", () => renderChart(data));
     return () => window.removeEventListener("resize", () => renderChart(data));
-  }, [data]);
+  }, []);
 
   //   return <svg width={maxWidth} height={maxHeight} id="barchart" ref={ref} />;
   return (

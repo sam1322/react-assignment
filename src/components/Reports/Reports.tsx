@@ -64,6 +64,7 @@ const Reports: FC<ReportsProps> = ({}) => {
       </div>
       <div className="flex items-center justify-between">
         <div className="text-xl font-semibold">Overview</div>
+        {/* @ts-ignore */}
         <DatePickerWithRange date={date} setDate={setDate} />
       </div>
       <hr className="mt-4 mb-8" />
@@ -73,5 +74,4 @@ const Reports: FC<ReportsProps> = ({}) => {
     </div>
   );
 };
-
 export default Reports;

@@ -60,7 +60,7 @@ const OrderCards: FC<OrderCardsProps> = ({
             )}
           </div>
           <div className="text-sm flex items-start gap-2">
-            <div>Y'day -</div> <div className="font-bold">{yesterdayValue}</div>
+            <div>Y&apos;day -</div> <div className="font-bold">{yesterdayValue}</div>
           </div>
         </div>
       </div>
