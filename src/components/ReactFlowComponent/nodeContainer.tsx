@@ -14,7 +14,6 @@ import {
 } from "@xyflow/react";
 
 import "@xyflow/react/dist/style.css";
-import { ComboboxDemo } from "./ComboBox";
 import { Button } from "../ui/button";
 import CustomSelectorNode from "./CustomSelectorNode";
 import PaymentDropdown from "./PaymentDropdown";
@@ -46,29 +45,36 @@ const useHistory = (initialState: FlowState) => {
   const [history, setHistory] = useState([initialState]);
 
   const setState = (
-    action: FlowState | ((prevState: FlowState) => FlowState)
+    action: FlowState | ((prevState: FlowState) => FlowState),
+    overwrite: boolean = false
   ) => {
-    const newState =
-      typeof action === "function" ? action(history[index]) : action;
-    const updatedHistory = history.slice(0, index + 1);
-    setHistory([...updatedHistory, newState]);
-    setIndex((prevIndex) => prevIndex + 1);
+    setHistory((prevHistory) => {
+      const newState =
+        typeof action === "function" ? action(prevHistory[index]) : action;
+      const updatedHistory = prevHistory.slice(0, index + 1);
+
+      // If overwrite, replace the current index with the new state
+      if (overwrite) {
+        updatedHistory[index] = newState;
+        return [...updatedHistory];
+      }
+
+      // Otherwise, append the new state and update index
+      setIndex((prevIndex) => prevIndex + 1);
+      return [...updatedHistory, newState];
+    });
+    // const newState =
+    //   typeof action === "function" ? action(history[index]) : action;
+    // if (overwrite) {
+    //   const historyCopy = [...history];
+    //   historyCopy[index] = newState;
+    //   setHistory(historyCopy);
+    // } else {
+    //   const updatedState = [...history].slice(0, index + 1);
+    //   setHistory([...updatedState, newState]);
+    //   setIndex((prevState) => prevState + 1);
+    // }
   };
-
-  // const setState = (action: FlowState | ((prevState: FlowState) => FlowState), overwrite:boolean = false) => {
-  //   const newState =
-  //     typeof action === "function" ? action(history[index]) : action;
-  //   if (overwrite) {
-  //     const historyCopy = [...history];
-  //     historyCopy[index] = newState;
-  //     setHistory(historyCopy);
-  //   } else {
-  //     const updatedState = [...history].slice(0, index + 1);
-  //     setHistory([...updatedState, newState]);
-  //     setIndex((prevState) => prevState + 1);
-  //   }
-  // };
-
 
   console.log("history nodes length", history.length, index);
 
@@ -79,10 +85,16 @@ const useHistory = (initialState: FlowState) => {
   // }, []);
 
   const redo = useCallback(() => {
+    console.log("lol");
     setIndex((prevIndex) =>
       prevIndex < history.length - 1 ? prevIndex + 1 : prevIndex
     );
   }, [history.length]);
+  useEffect(() => {
+    if (index >= history.length) {
+      setIndex(history.length - 1);
+    }
+  }, [index, history.length]);
 
   return [
     history[index],
@@ -134,7 +146,33 @@ const NodeContainer: FC<NodeContainerProps> = ({}) => {
   // const [history, setHistory, undo, redo] = useHistory({ nodes, edges });
 
   const saveWorkflow = (nodes: Node[], edges: Edge[]) => {
-    const workflow = { nodes, edges };
+    // const workflow = { nodes, edges };
+    const serializedNodes = nodes.map(
+      ({ id, data, position, type, measured }) => ({
+        id,
+        data: {
+          label: data?.label,
+          nodeType: data?.nodeType,
+          // onDeleteNode: onDeleteNode,
+        },
+
+        position,
+        type,
+        measured,
+      })
+    );
+
+    const serializedEdges = edges.map(
+      ({ id, source, target, type }) => ({
+        id,
+        source,
+        target,
+        type,
+      })
+    );
+
+    const workflow = { nodes: serializedNodes, edges: serializedEdges };
+
     localStorage.setItem(STORAGE_KEY, JSON.stringify(workflow));
   };
 
@@ -148,8 +186,6 @@ const NodeContainer: FC<NodeContainerProps> = ({}) => {
 
   const historyNodes = historyObj?.nodes;
   const historyEdges = historyObj?.edges;
-
-  console.log("index", index);
 
   const nodeTypes = {
     selectorNode: CustomSelectorNode,
@@ -195,6 +231,10 @@ const NodeContainer: FC<NodeContainerProps> = ({}) => {
     if (savedWorkflow) {
       setNodes(savedWorkflow.nodes);
       setEdges(savedWorkflow.edges);
+      setHistory(
+        { nodes: savedWorkflow.nodes, edges: savedWorkflow.edges },
+        true
+      );
       setTimeout(() => {
         alert("Workflow loaded successfully!");
       }, 500);
@@ -206,11 +246,11 @@ const NodeContainer: FC<NodeContainerProps> = ({}) => {
   const onClear = useCallback(() => {
     setNodes([]);
     setEdges([]);
+    setHistory({ nodes: [], edges: [] }, true);
     localStorage.removeItem(STORAGE_KEY);
     setTimeout(() => {
       alert("Workflow cleared and local storage reset.");
     }, 500);
-   
   }, [setNodes, setEdges]);
 
   // const addNode = (type: NodeType) => {
@@ -263,7 +303,7 @@ const NodeContainer: FC<NodeContainerProps> = ({}) => {
         position: { x: 300, y: 300 },
         data: {
           label: newId,
-          nodeType: type,
+          // nodeType: type,
           onDeleteNode: onDeleteNode,
         },
         type: "paymentNode",
@@ -344,13 +384,13 @@ const NodeContainer: FC<NodeContainerProps> = ({}) => {
       </div>
       <div className="bg-black h-[900px] w-[80%] ">
         <ReactFlow
-          nodes={nodes}
-          edges={edges}
+          // nodes={nodes}
+          // edges={edges}
           // onNodesChange={onNodesChange}
           // onEdgesChange={onEdgesChange}
           // onConnect={onConnect}
-          // nodes={historyNodes ?? nodes}
-          // edges={historyEdges ?? edges}
+          nodes={historyNodes ?? nodes}
+          edges={historyEdges ?? edges}
           onNodesChange={handleNodesChange}
           onEdgesChange={handleEdgesChange}
           onConnect={handleConnect}
