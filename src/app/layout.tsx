@@ -24,7 +24,7 @@ export default function RootLayout({
       <body className={roboto.className}>
         {/* {children} */}
 
-        <Navbar />
+        {/* <Navbar /> */}
         <div className="mx-auto h-full pt-16 bg-gray-100">{children}</div>
 
         {/* <div className="container max-w-7xl  mx-auto h-full pt-16">

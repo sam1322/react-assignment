@@ -13,7 +13,7 @@ const LeftSideBar: FC<LeftSideBarProps> = ({}) => {
     setSelected(icon);
   };
   return (
-    <div className="fixed left-0 top-16 h-fit bg-darkblue  z-[20] px-4 py-6 ">
+    <div className="fixed left-0 top-16 h-fit bg-darkblue  z-[20] px-4 py-6 hidden sm:block ">
       {/* <Card icon="Home" selected= />
       <Card icon="Inventory" />
       <Card icon="Cart" /> */}

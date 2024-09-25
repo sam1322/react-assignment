@@ -68,8 +68,8 @@ const Reports: FC<ReportsProps> = ({}) => {
         <DatePickerWithRange date={date} setDate={setDate} />
       </div>
       <hr className="mt-4 mb-8" />
-      <OverviewContainer />
-      <OrdersAndRevenue date={date} />
+      {/* <OverviewContainer /> */}
+      {/* <OrdersAndRevenue date={date} /> */}
       <PieCharts date={date} />
     </div>
   );
