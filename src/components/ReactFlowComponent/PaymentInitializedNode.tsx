@@ -1,9 +1,6 @@
 import React, { memo, useState } from "react";
 import { Handle, NodeResizer, Position } from "@xyflow/react";
-import Image from "next/image";
-import googlePayIcon from "@public/images/googleicon.png";
-import applePayIcon from "@public/images/appleicon.png";
-import paypalIcon from "@public/images/paypalicon.png";
+
 import { cn } from "@/lib/utils";
 
 const PaymentInitializedNode = ({ data, id, selected, ...resProps }) => {

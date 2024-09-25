@@ -18,6 +18,7 @@ import { Button } from "../ui/button";
 import CustomSelectorNode from "./CustomSelectorNode";
 import PaymentDropdown from "./PaymentDropdown";
 import PaymentInitializedNode from "./PaymentInitializedNode";
+import dagre from "dagre";
 
 const initialNodes = [
   // { id: "1", position: { x: 0, y: 0 }, data: { label: "1" } },
@@ -63,17 +64,6 @@ const useHistory = (initialState: FlowState) => {
       setIndex((prevIndex) => prevIndex + 1);
       return [...updatedHistory, newState];
     });
-    // const newState =
-    //   typeof action === "function" ? action(history[index]) : action;
-    // if (overwrite) {
-    //   const historyCopy = [...history];
-    //   historyCopy[index] = newState;
-    //   setHistory(historyCopy);
-    // } else {
-    //   const updatedState = [...history].slice(0, index + 1);
-    //   setHistory([...updatedState, newState]);
-    //   setIndex((prevState) => prevState + 1);
-    // }
   };
 
   console.log("history nodes length", history.length, index);
@@ -90,6 +80,7 @@ const useHistory = (initialState: FlowState) => {
       prevIndex < history.length - 1 ? prevIndex + 1 : prevIndex
     );
   }, [history.length]);
+
   useEffect(() => {
     if (index >= history.length) {
       setIndex(history.length - 1);
@@ -107,41 +98,49 @@ const useHistory = (initialState: FlowState) => {
   ] as const;
 };
 
-// const useHistory = (initialState) => {
-//   const [index, setIndex] = useState(0);
-//   const [history, setHistory] = useState([initialState]);
+const dagreGraph = new dagre.graphlib.Graph();
+dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-//   const setState = (action, overwrite = false) => {
-//     const newState =
-//       typeof action === "function" ? action(history[index]) : action;
-//     if (overwrite) {
-//       const historyCopy = [...history];
-//       historyCopy[index] = newState;
-//       setHistory(historyCopy);
-//     } else {
-//       const updatedState = [...history].slice(0, index + 1);
-//       setHistory([...updatedState, newState]);
-//       setIndex((prevState) => prevState + 1);
-//     }
-//   };
-//   console.log("history nodes length", history.length, index);
-
-//   const undo = useCallback(() => {
-//     setIndex((prevState) => (prevState > 0 ? prevState - 1 : prevState));
-//   }, []);
-
-//   const redo = useCallback(() => {
-//     setIndex((prevState) =>
-//       prevState < history.length - 1 ? prevState + 1 : prevState
-//     );
-//   }, [history.length]);
-
-//   return [history[index], setState, undo, redo];
-// };
+const nodeWidth = 500;
+const nodeHeight = 300;
 
 const NodeContainer: FC<NodeContainerProps> = ({}) => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  const getLayoutedElements = (nodes, edges, direction = "TB") => {
+    const isHorizontal = direction === "LR";
+    dagreGraph.setGraph({ rankdir: direction });
+
+    nodes.forEach((node) => {
+      dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+    });
+
+    edges.forEach((edge) => {
+      dagreGraph.setEdge(edge.source, edge.target);
+    });
+
+    dagre.layout(dagreGraph);
+
+    const newNodes = nodes.map((node) => {
+      const nodeWithPosition = dagreGraph.node(node.id);
+      const newNode = {
+        ...node,
+        targetPosition: isHorizontal ? "left" : "top",
+        sourcePosition: isHorizontal ? "right" : "bottom",
+        // We are shifting the dagre node position (anchor=center center) to the top left
+        // so it matches the React Flow node anchor point (top left).
+        position: {
+          x: nodeWithPosition.x - nodeWidth / 2,
+          y: nodeWithPosition.y - nodeHeight / 2,
+        },
+      };
+
+      return newNode;
+    });
+
+    return { nodes: newNodes, edges };
+  };
 
   // const [history, setHistory, undo, redo] = useHistory({ nodes, edges });
 
@@ -162,14 +161,12 @@ const NodeContainer: FC<NodeContainerProps> = ({}) => {
       })
     );
 
-    const serializedEdges = edges.map(
-      ({ id, source, target, type }) => ({
-        id,
-        source,
-        target,
-        type,
-      })
-    );
+    const serializedEdges = edges.map(({ id, source, target, type }) => ({
+      id,
+      source,
+      target,
+      type,
+    }));
 
     const workflow = { nodes: serializedNodes, edges: serializedEdges };
 
@@ -253,29 +250,6 @@ const NodeContainer: FC<NodeContainerProps> = ({}) => {
     }, 500);
   }, [setNodes, setEdges]);
 
-  // const addNode = (type: NodeType) => {
-  //   const newId = Math.random().toString(36).substr(2, 9);
-
-  //   const newNode: Node = {
-  //     id: newId,
-  //     position: { x: 300, y: 300 },
-  //     data: {
-  //       label: newId,
-  //       nodeType: type,
-  //       onDeleteNode: onDeleteNode,
-  //     },
-  //     type: "selectorNode",
-  //   };
-  //   setNodes((nodes) => [...nodes, newNode]);
-
-  //   setHistory({ nodes: [...nodes, newNode], edges });
-  // };
-
-  // const onDeleteNode = (nodeId: string) => {
-  //   console.log("nodeId", nodeId);
-  //   setNodes((nodes) => nodes.filter((node) => node.id !== nodeId));
-  // };
-
   const addNode = useCallback(
     (type: NodeType) => {
       const newId = Math.random().toString(36).substr(2, 9);
@@ -347,6 +321,18 @@ const NodeContainer: FC<NodeContainerProps> = ({}) => {
     () => window.removeEventListener("keydown", keyPressHandler);
   }, []);
 
+  const onLayout = useCallback(
+    (direction) => {
+      const { nodes: layoutedNodes, edges: layoutedEdges } =
+        getLayoutedElements(nodes, edges, direction);
+
+      setNodes([...layoutedNodes]);
+      setEdges([...layoutedEdges]);
+      setHistory({ nodes: layoutedNodes, edges: layoutedEdges }, true);
+    },
+    [nodes, edges]
+  );
+
   return (
     <div className="w-full h-full flex flex-col items-center justify-center">
       hello again
@@ -381,6 +367,9 @@ const NodeContainer: FC<NodeContainerProps> = ({}) => {
         <Button variant={"outline"} onClick={onClear}>
           Clear
         </Button>
+
+        <Button variant={"outline"} onClick={() => onLayout("TB")}>vertical layout</Button>
+        <Button variant={"outline"} onClick={() => onLayout("LR")}>horizontal layout</Button>
       </div>
       <div className="bg-black h-[900px] w-[80%] ">
         <ReactFlow
