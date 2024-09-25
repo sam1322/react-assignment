@@ -5,7 +5,13 @@ import googlePayIcon from "@public/images/googleicon.png";
 import applePayIcon from "@public/images/appleicon.png";
 import paypalIcon from "@public/images/paypalicon.png";
 
-const CustomSelectorNode = ({ data, id,selected, ...resProps }) => {
+interface CustomSelectorNodeProps {
+  data: any;
+  id: string;
+  selected: boolean;
+}
+
+const CustomSelectorNode = ({ data, id, selected, ...resProps }: CustomSelectorNodeProps) => {
   // console.log("data", data, resProps);
   const { nodeType, onDeleteNode } = data;
 
@@ -37,7 +43,10 @@ const CustomSelectorNode = ({ data, id,selected, ...resProps }) => {
       height = 30;
       break;
     default:
-      label = "Default";
+      label = "Google Pay ( Default ) =";
+      imageSrc = googlePayIcon;
+
+
   }
 
   return (

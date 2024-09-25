@@ -3,7 +3,13 @@ import { Handle, NodeResizer, Position } from "@xyflow/react";
 
 import { cn } from "@/lib/utils";
 
-const PaymentInitializedNode = ({ data, id, selected, ...resProps }) => {
+interface PaymentInitializedNodeProps {
+  data: any;
+  id: string;
+  selected: boolean;
+}
+
+const PaymentInitializedNode = ({ data, id, selected, ...resProps }:PaymentInitializedNodeProps) => {
   const [value, setValue] = useState("");
   // console.log("data", data, resProps);
   const { nodeType, onDeleteNode } = data;

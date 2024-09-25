@@ -12,7 +12,7 @@ import { Button } from "../ui/button";
 type NodeType = "google" | "apple" | "paypal";
 
 interface PaymentDropdownProps {
-  addNode: (type: NodeType) => void;
+  addNode: (type: string) => void;
   nodes: any;
 }
 
